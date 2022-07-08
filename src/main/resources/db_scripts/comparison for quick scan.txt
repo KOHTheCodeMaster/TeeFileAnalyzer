@@ -1,0 +1,56 @@
+
+USE TFA;
+
+
+SELECT * FROM a_file_data;
+SELECT * FROM a_directory_data;
+SELECT * FROM a_directory_meta_data;
+SELECT * FROM a_temp_dir_data;
+
+# Difference b/w A_TEMP_DIR_DATA  &  A_DIRECTORY_DATA
+SELECT TDD.*
+FROM a_temp_dir_data TDD
+         LEFT JOIN
+     (
+         SELECT DMD.LAST_MOD_TIME_IN_MICROS, DD.PATH_HASH_SHA_256
+         FROM a_directory_meta_data DMD,
+              a_directory_data DD
+         WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID
+     ) DD2
+ON TDD.PATH_HASH_SHA_256 = DD2.PATH_HASH_SHA_256
+WHERE TDD.LAST_MOD_TIME_IN_MICROS <> DD2.LAST_MOD_TIME_IN_MICROS;
+
+
+# Difference b/w A_TEMP_DIR_DATA  &  A_DIRECTORY_DATA
+UPDATE a_temp_dir_data AS T1,
+    (SELECT TDD.PATH_HASH_SHA_256
+     FROM a_temp_dir_data TDD
+              LEFT JOIN
+          (
+              SELECT DMD.LAST_MOD_TIME_IN_MICROS, DD.PATH_HASH_SHA_256
+              FROM a_directory_meta_data DMD,
+                   a_directory_data DD
+              WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID
+          ) DD2
+          ON TDD.PATH_HASH_SHA_256 = DD2.PATH_HASH_SHA_256
+     WHERE TDD.LAST_MOD_TIME_IN_MICROS <> DD2.LAST_MOD_TIME_IN_MICROS) AS T2
+SET SHOULD_SCAN = 1
+WHERE T1.PATH_HASH_SHA_256 = T2.PATH_HASH_SHA_256;
+
+
+SELECT COUNT(*)
+FROM A_TEMP_DIR_DATA TDD
+         LEFT JOIN
+     (
+         SELECT DMD.LAST_MOD_TIME_IN_MICROS, DD.PATH_HASH_SHA_256
+         FROM a_directory_meta_data DMD,
+              a_directory_data DD
+         WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID
+     ) DD2
+     ON TDD.PATH_HASH_SHA_256 = DD2.PATH_HASH_SHA_256
+WHERE TDD.LAST_MOD_TIME_IN_MICROS != DD2.LAST_MOD_TIME_IN_MICROS;
+
+
+SELECT COUNT(*) FROM a_temp_dir_data WHERE SHOULD_SCAN = 1;
+
+SELECT * FROM a_temp_dir_data WHERE SHOULD_SCAN = 1;

@@ -1,0 +1,23 @@
+USE TFA;
+
+SELECT * FROM a_file_data;
+
+SELECT * FROM a_directory_data;
+SELECT * FROM a_directory_meta_data;
+SELECT * FROM a_temp_dir_data;
+
+# Delete All records from a_directory_data
+DELETE FROM a_directory_data WHERE DIRECTORY_META_DATA_ID IS NOT NULL;
+
+# Delete All records from a_directory_meta_data whose ID is not mapped with
+# any records from a_directory_data table
+DELETE
+FROM a_directory_meta_data DMD
+WHERE DMD.ID NOT IN (
+    SELECT D.id FROM (
+        SELECT DISTINCT DMD.ID
+    FROM a_directory_meta_data DMD,
+         a_directory_data DD
+    WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID) AS D
+);
+
