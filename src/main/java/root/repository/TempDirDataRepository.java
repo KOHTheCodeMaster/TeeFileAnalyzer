@@ -40,38 +40,6 @@ public interface TempDirDataRepository extends JpaRepository<TempDirData, Long> 
     )
     int updateTempDirDataShouldScan();
 
-    /**
-     * Difference b/w A_TEMP_DIR_DATA  &  A_DIRECTORY_DATA
-     * Get records from A_TEMP_DIR_DATA Table whose LAST_MOD_TIME_IN_MICROS is not equal to that of
-     * A_DIRECTORY_META_DATA Table for respective A_DIRECTORY_DATA Table.
-     * @param pageRequest
-     * @return
-     */
-    @Query(value = "SELECT TDD.* " +
-            "FROM A_TEMP_DIR_DATA AS TDD  " +
-            "         LEFT JOIN " +
-            "     ( " +
-            "         SELECT DMD.LAST_MOD_TIME_IN_MICROS, DD.PATH_HASH_SHA_256 " +
-            "         FROM a_directory_meta_data DMD, " +
-            "              a_directory_data DD " +
-            "         WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID " +
-            "     ) DD2 " +
-            "ON TDD.PATH_HASH_SHA_256 = DD2.PATH_HASH_SHA_256 " +
-            "WHERE TDD.LAST_MOD_TIME_IN_MICROS != DD2.LAST_MOD_TIME_IN_MICROS ",
-//            "ORDER BY ?#{#pageRequest} ",
-            countQuery = "SELECT COUNT(*) " +
-                    "FROM A_TEMP_DIR_DATA TDD " +
-                    "         LEFT JOIN " +
-                    "     ( " +
-                    "         SELECT DMD.LAST_MOD_TIME_IN_MICROS, DD.PATH_HASH_SHA_256 " +
-                    "         FROM a_directory_meta_data DMD, " +
-                    "              a_directory_data DD " +
-                    "         WHERE DMD.ID = DD.DIRECTORY_META_DATA_ID " +
-                    "     ) DD2 " +
-                    "     ON TDD.PATH_HASH_SHA_256 = DD2.PATH_HASH_SHA_256 " +
-                    "WHERE TDD.LAST_MOD_TIME_IN_MICROS != DD2.LAST_MOD_TIME_IN_MICROS",
-            nativeQuery = true
-    )
-    Page<TempDirData> compareWithDirectoryDataSelect(PageRequest pageRequest);
+    Page<TempDirData> findByShouldScan(boolean shouldScan, PageRequest pageRequest);
 
 }

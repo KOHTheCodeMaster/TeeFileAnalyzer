@@ -4,6 +4,14 @@ Commit-History:
 
 ----------------------------------------------------------------------------------------------------
 
+Time Stamp: 8th July 2K22, 01:29 PM..!!
+
+2nd Commit - Method added for Processing Updated Temp Dirs List
+
+1. Method Added - tempDirDataController.processUpdatedTempDirList()
+
+----------------------------------------------------------------------------------------------------
+
 Time Stamp: 8th July 2K22, 11:40 AM..!!
 
 1st Commit - Base Established for Quick Scan

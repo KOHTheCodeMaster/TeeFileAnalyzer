@@ -79,11 +79,11 @@ public class TempDirDataService {
 
     }
 
-    public void comparisonSelect() {
+    public boolean processUpdatedTempDirList() {
 
-        logger.info("L0G: comparison(): Begin.");
+        logger.info("L0G: processUpdatedTempDirList(): Begin.");
 
-        PageRequest pageRequest = PageRequest.of(0, 2, Sort.by("CANONICAL_PATH"));
+        PageRequest pageRequest = PageRequest.of(0, 2, Sort.by("canonicalPath"));
         Page<TempDirData> page;
 
         do {
@@ -93,30 +93,29 @@ public class TempDirDataService {
                 Update SHOULD_SCAN = 1 for records from A_TEMP_DIR_DATA Table whose LAST_MOD_TIME_IN_MICROS
                 is not equal to that of A_DIRECTORY_META_DATA Table for respective A_DIRECTORY_DATA Table.
              */
-            page = tempDirDataRepository.compareWithDirectoryDataSelect(pageRequest);
-/*
+            page = tempDirDataRepository.findByShouldScan(true, pageRequest);
             logger.info("L0G: ------------------  ");
-            logger.info("L0G: comparison():" +
+            logger.info("L0G: processUpdatedTempDirList():" +
                     "\nPage No. - " + page.getNumber() +
                     " | Total Pages - " + page.getTotalPages() +
                     " | Total Elements - " + page.getTotalElements() +
                     " | Total No. Of Elements - " + page.getNumberOfElements() +
                     " | Total Size - " + page.getSize());
-*/
 
             List<TempDirData> list = page.getContent();
+            StringBuilder strCanonicalPathOfAll = new StringBuilder();
+
+            //  Process List Here.
+            list.stream()
+                    .map(TempDirData::getCanonicalPath)
+                    .forEach(s -> strCanonicalPathOfAll.append(s).append(" | "));
+
+            logger.info(strCanonicalPathOfAll.toString());
 
             if (list.isEmpty()) {
-                logger.info("L0G: comparison(): No Dirs. were changed.");
-                return;
+                logger.info("L0G: processUpdatedTempDirList(): No Dirs. were changed.");
+                return false;
             }
-/*
-            //  Update Flag shouldScan
-            list.forEach(tempDirData -> {
-                tempDirData.setShouldScan(true);
-            });
-
-            tempDirDataRepository.saveAll(list);*/
 
 //            logger.info("L0G: List - ");
 //            list.stream().map(TempDirData::toString).forEach(logger::info);
@@ -127,7 +126,10 @@ public class TempDirDataService {
 
         logger.info("L0G: Total Impacted Dirs Count - " + page.getTotalElements());
 
-        logger.info("L0G: comparison(): End.");
+        logger.info("L0G: processUpdatedTempDirList(): End.");
+
+        return true;
 
     }
+
 }

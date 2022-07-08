@@ -28,4 +28,8 @@ public class TempDirDataController {
     public void updateShouldScan() {
         tempDirDataService.updateShouldScan();
     }
+
+    public void processUpdatedTempDirList() {
+        tempDirDataService.processUpdatedTempDirList();
+    }
 }

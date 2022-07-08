@@ -32,7 +32,9 @@ public class MainController {
 
     private static final String srcPath = "./Z/";
 //    private boolean updateSrcDirFiles = false;
-    private boolean updateSrcDirFiles = true;
+    private static final boolean updateSrcDirFiles = true;
+    private static final boolean shouldInitSrcDir = false;
+//    private boolean shouldInitSrcDir = true;
 
     @Autowired
     public MainController(TempDirDataController tempDirDataController, DirectoryDataController directoryDataController) {
@@ -62,37 +64,12 @@ public class MainController {
 
     private void analyzeQuickScanResults() {
 
-        f1();
+        tempDirDataController.updateShouldScan();
 
-        prepareTempMap();
+        tempDirDataController.processUpdatedTempDirList();
 
-    }
-
-    private void f1() {
-
-        /*
-            Each Dir. has 3 Files ->    1.txt   2.txt   3.txt
-            Dir Structure:
-            /Z          /Z/A            /Z/B
-                        /Z/A/A1         /Z/B/B1
-                        /Z/A/A2         /Z/B/B2
-
-            Operations on Item - Both File & Directory:
-            1.  New Item Added -> Addition of new file 4.txt in Z/A/A1/4.txt
-            2.  Existing Item Deleted.
-            3.  Rename Existing Item.
-            4.  Move Existing Item To Different Directory.
-            5.  Modify Content of Existing Item.
-
-            Handle Scenarios:                   Changed
-            1.  /Z/A/A1/3.txt Added     -       A1
-            2.  /Z/B/B1/2.txt Deleted   -       B1
-            3.  /Z/A/A1/3.txt Added     -       A1
-            4.  /Z/A/A1/3.txt Added     -       A1
-            5.
-
-         */
-
+//        f1();
+//        prepareTempMap();
 
     }
 
@@ -113,8 +90,6 @@ public class MainController {
         //  Copy Quick Scan results from A_TEMP_DIR_DATA Table to A_DIRECTORY_DATA Table if EMPTY. (1st Scan)
         directoryDataController.saveIfEmpty();
 
-        tempDirDataController.updateShouldScan();
-
     }
 
     /**
@@ -124,6 +99,8 @@ public class MainController {
 
         File zDir = new File(srcPath);
         File zBackupDir = new File("./Z Backup/");
+
+        if (!shouldInitSrcDir) return;
 
         if (zDir.isDirectory()) {
             logger.info("L0G: initializeSrcDir(): Z Dir. already Exists.\nDeleting ./Z");
@@ -149,6 +126,15 @@ public class MainController {
     }
 
     /**
+     *
+     * Operations on Item - Both File & Directory:
+     *
+     * 1.  New Item Added -> Addition of new file 4.txt in Z/A/A1/4.txt
+     * 2.  Existing Item Deleted.
+     * 3.  Rename Existing Item.
+     * 4.  Move Existing Item To Different Directory.
+     * 5.  Modify Content of Existing Item. [Irrelevant]
+     *
      * Scenarios:                            Changed
      * 1.  /Z/A/A1/3.txt Added          -       A1
      * 2.  /Z/A/A2/2.txt Deleted        -       A2
