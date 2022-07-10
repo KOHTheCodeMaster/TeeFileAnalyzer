@@ -33,7 +33,8 @@ public class MainController {
     private static final String srcPath = "./Z/";
 //    private boolean updateSrcDirFiles = false;
     private static final boolean updateSrcDirFiles = true;
-    private static final boolean shouldInitSrcDir = false;
+    private static final boolean updateSrcDirOperations = true;
+    private static final boolean shouldInitSrcDir = true;
 //    private boolean shouldInitSrcDir = true;
 
     @Autowired
@@ -116,12 +117,61 @@ public class MainController {
             FileUtils.copyDirectory(zBackupDir, zDir);
             logger.info("L0G: initializeSrcDir(): ./Z Dir Created.");
 
-            if (updateSrcDirFiles) updateSrcDir();
+            if (updateSrcDirFiles) updateSrcDirFiles();
+            if (updateSrcDirOperations) updateSrcDirs();
 
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+
+    }
+
+    /**
+     * Perform Directory Operations - Add, Delete, Rename & Move Dirs.
+     *
+     * Operations on Directory:
+     *
+     * 1.  New Directory Added
+     * 2.  Existing Directory Deleted.
+     * 3.  Rename Existing Directory.
+     * 4.  Move Existing Directory To Different Directory.
+     * 5.  Modify Content of Existing Directory. [Irrelevant]
+     *
+     * Scenarios:                                Changed
+     * 1.  /Z/C/C1/C13 - NEW/       Added   -       C1, C13 - NEW
+     * 2.  /Z/C/C2/C22/             Deleted -       C2, C22
+     * 3.  /Z/C/C3/C31/             Renamed -       C3, C31, C31 - Renamed
+     * 4.  /Z/D/D1/D11/         Moved to B2 -       D1, D2, D11
+     * 5.  /Z/D/D1/D12/     Moved & Renamed -       D1, D2, D12 - Moved & Renamed
+     */
+    private void updateSrcDirs() {
+
+        try {
+
+            File dir1 = new File(srcPath + "C/C1/C13 - Added/");
+            Files.createDirectory(dir1.toPath());
+
+            File dir2 = new File(srcPath + "C/C2/C22/");
+            FileUtils.deleteDirectory(dir2);
+
+            //  Rename C/C3/C31/ -> C/C3/C31 - Renamed/
+            File dir3 = new File(srcPath + "C/C3/C31/");
+            dir3.renameTo(new File(srcPath + "C/C3/C31 - Renamed/"));
+
+            //  Move D/D1/D11/ -> D/D2/D11/
+            FileUtils.moveDirectory(new File(srcPath + "D/D1/D11/"), new File(srcPath + "D/D2/D11/"));
+
+            //  Move D/D1/D12/ -> D/D2/D22/     |   Move & Rename both operations
+            FileUtils.moveDirectory(new File(srcPath + "D/D1/D12/"),
+                    new File(srcPath + "D/D2/D12 - Moved & Renamed/"));
+
+            logger.info("L0G: updateSrcDirs(): Dirs. updated.");
+
+        } catch (IOException e) {
+            logger.error("Failed to update Dirs. in ./Z dir.");
+            e.printStackTrace();
+        }
 
     }
 
@@ -142,7 +192,7 @@ public class MainController {
      * 4.  /Z/B/B1/1.txt Moved to B2    -       B1, B2
      * 5.  /Z/B/B3/3.txt Updated time   -       B3
      */
-    private void updateSrcDir() {
+    private void updateSrcDirFiles() {
 
         try {
 

@@ -38,7 +38,27 @@ public interface TempDirDataRepository extends JpaRepository<TempDirData, Long> 
             "WHERE T1.PATH_HASH_SHA_256 = T2.PATH_HASH_SHA_256",
             nativeQuery = true
     )
-    int updateTempDirDataShouldScan();
+    int updateShouldScanForModifiedItems();
+
+    /**
+     * Update SHOULD_SCAN = 1 for records from A_TEMP_DIR_DATA whose CANONICAL_PATH
+     * is not equal to that of A_DIRECTORY_DATA
+     * @return Updated Row Count
+     */
+    @Modifying
+    @Query(value = "UPDATE a_temp_dir_data " +
+            "SET SHOULD_SCAN = 1 " +
+            "WHERE CANONICAL_PATH NOT IN ( " +
+            "    SELECT * " +
+            "    FROM ( " +
+            "             SELECT TDD2.CANONICAL_PATH " +
+            "             FROM a_temp_dir_data TDD2, " +
+            "                  a_directory_data DD " +
+            "             WHERE TDD2.PATH_HASH_SHA_256 = DD.PATH_HASH_SHA_256) as T2DCP " +
+            ")",
+            nativeQuery = true
+    )
+    int updateShouldScanForNewlyAddedDirs();
 
     Page<TempDirData> findByShouldScan(boolean shouldScan, PageRequest pageRequest);
 

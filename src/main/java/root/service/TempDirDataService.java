@@ -71,7 +71,8 @@ public class TempDirDataService {
             Update SHOULD_SCAN = 1 for records from A_TEMP_DIR_DATA whose LAST_MOD_TIME_IN_MICROS
             is not equal to that of A_DIRECTORY_META_DATA for respective A_DIRECTORY_DATA
          */
-        int updatedRowCount = tempDirDataRepository.updateTempDirDataShouldScan();
+        int updatedRowCount = tempDirDataRepository.updateShouldScanForModifiedItems();
+        updatedRowCount += tempDirDataRepository.updateShouldScanForNewlyAddedDirs();
 
         logger.info("L0G: Total Impacted Dirs Count - " + updatedRowCount);
 
@@ -79,7 +80,7 @@ public class TempDirDataService {
 
     }
 
-    public boolean processUpdatedTempDirList() {
+    public void processUpdatedTempDirList() {
 
         logger.info("L0G: processUpdatedTempDirList(): Begin.");
 
@@ -88,11 +89,6 @@ public class TempDirDataService {
 
         do {
 
-            /*
-                Difference b/w A_TEMP_DIR_DATA  &  A_DIRECTORY_DATA
-                Update SHOULD_SCAN = 1 for records from A_TEMP_DIR_DATA Table whose LAST_MOD_TIME_IN_MICROS
-                is not equal to that of A_DIRECTORY_META_DATA Table for respective A_DIRECTORY_DATA Table.
-             */
             page = tempDirDataRepository.findByShouldScan(true, pageRequest);
             logger.info("L0G: ------------------  ");
             logger.info("L0G: processUpdatedTempDirList():" +
@@ -114,7 +110,7 @@ public class TempDirDataService {
 
             if (list.isEmpty()) {
                 logger.info("L0G: processUpdatedTempDirList(): No Dirs. were changed.");
-                return false;
+                return;
             }
 
 //            logger.info("L0G: List - ");
@@ -127,8 +123,6 @@ public class TempDirDataService {
         logger.info("L0G: Total Impacted Dirs Count - " + page.getTotalElements());
 
         logger.info("L0G: processUpdatedTempDirList(): End.");
-
-        return true;
 
     }
 

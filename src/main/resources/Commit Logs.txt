@@ -4,6 +4,14 @@ Commit-History:
 
 ----------------------------------------------------------------------------------------------------
 
+Time Stamp: 10th July 2K22, 08:25 PM..!!
+
+3rd Commit - Method added for Updating SHOULD_SCAN for Newly Added/Moved/Renamed Dirs.
+
+1. Method Added - tempDirDataRepository.updateShouldScanForNewlyAddedDirs()
+
+----------------------------------------------------------------------------------------------------
+
 Time Stamp: 8th July 2K22, 01:29 PM..!!
 
 2nd Commit - Method added for Processing Updated Temp Dirs List
